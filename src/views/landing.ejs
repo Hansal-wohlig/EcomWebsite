@@ -20,6 +20,11 @@
         <a href="/">Home</a>
         <a href="/products">Products</a>
         <a href="/cart">Cart</a>
+        <% if(!user){%>
+            <a href="/auth/google" class="btn">Login with Google</a>
+        <% } else { %>
+            <a href="/auth/logout" class="btn">Logout</a>
+        <% } %>
       </nav>
     </div>
   </header>
