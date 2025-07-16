@@ -1,0 +1,190 @@
+/* Orbitron tech font */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+/* ----------------- Base ----------------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: 'Orbitron', sans-serif;
+  background: #0f172a;
+  color: #fff;
+}
+
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ----------------- Navbar ----------------- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 0;
+}
+
+.brand {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.navbar nav a {
+  margin-left: 1.2rem;
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.navbar nav a:hover {
+  color: #fff;
+}
+
+/* ----------------- Hero ----------------- */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: brightness(0.3);
+}
+
+
+.hero-overlay {
+  position: relative;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.hero-overlay h1 {
+  font-size: 3.6rem;
+  margin: 0 0 1rem;
+  animation: fadeIn 1s forwards;
+}
+
+.highlight {
+  color: #3b82f6;
+}
+
+.hero-overlay p {
+  font-size: 1.2rem;
+  color: #d1d5db;
+  margin-bottom: 2rem;
+  animation: fadeIn 1s 0.4s forwards;
+  opacity: 0;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.75rem 2.25rem;
+  background: #3b82f6;
+  border-radius: 6px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  transform: translateY(25px);
+  opacity: 0;
+  transition: background 0.3s, transform 0.3s;
+  animation: slideUp 0.8s 0.8s forwards;
+}
+
+.btn:hover {
+  background: #2563eb;
+  transform: translateY(18px);
+}
+
+/* ----------------- Features Section ----------------- */
+.features {
+  position: relative;
+  z-index: 3;
+  padding: 6rem 0;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.features h2 {
+  text-align: center;
+  font-size: 2.4rem;
+  margin-bottom: 3rem;
+}
+
+.cards {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* Glass-morphism panel */
+.glass-card {
+  padding: 2rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+}
+
+.glass-card h3 {
+  color: #3b82f6;
+  margin-bottom: 0.75rem;
+}
+
+/* ----------------- Footer ----------------- */
+.footer {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.9);
+  padding: 1rem 0;
+  font-size: 0.85rem;
+}
+
+/* ----------------- Animations ----------------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(25px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
