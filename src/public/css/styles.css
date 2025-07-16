@@ -188,3 +188,166 @@ html, body {
     opacity: 1;
   }
 }
+
+/* ----------------- Admin Dashboard ----------------- */
+.admin-container {
+  padding: 5rem 2rem 3rem;
+  max-width: 900px;
+  margin: 7rem auto 4rem;
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  box-shadow: 0 0 40px rgba(0, 255, 255, 0.3);
+}
+
+/* Dashboard Title */
+.admin-container h1 {
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #00ffff; /* Bright cyan for titles */
+  border-bottom: 2px solid #00ffff;
+  padding-bottom: 0.6rem;
+}
+
+/* Tabs Navigation */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tabs button {
+  padding: 0.6rem 1.8rem;
+  font-size: 1rem;
+  background-color: transparent;
+  color: #00ffff;
+  border: 1px solid #00ffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tabs button:hover {
+  background-color: #00ffff;
+  color: #0f172a; /* Dark text on hover */
+  font-weight: bold;
+}
+
+/* Section Titles */
+.tab h2 {
+  color: #00ffff; /* Bright cyan for section titles */
+  font-size: 2rem; /* Increased size for emphasis */
+  margin: 2rem 0 1rem;
+  text-align: center;
+}
+
+/* Admin Forms */
+.tab form {
+  display: flex;
+  flex-direction: column; /* Vertical stacking */
+  align-items: stretch;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab form input,
+.tab form textarea,
+.tab form select {
+  padding: 0.8rem;
+  border-radius: 5px;
+  border: 1px solid #00ffff;
+  background-color: #0f172a; /* Dark input background */
+  color: #00ffff; /* Bright text */
+  min-width: 220px;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.tab form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.tab form button {
+  background-color: #00ffff; /* Bright button */
+  border: none;
+  color: #0f172a; /* Dark text */
+  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.tab form button:hover {
+  background-color: #00dfd8; /* Slightly darker on hover */
+}
+
+/* Product / Category Items */
+.item {
+  background: rgba(17, 24, 39, 0.8); /* Adjusted for less opacity */
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  border-left: 3px solid #00ffff; /* Bright cyan border */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.item:hover {
+  background-color: #1e293b; /* Dark on hover */
+}
+
+.item form {
+  margin: 0;
+}
+
+.item form button {
+  background-color: #ef4444; /* Red button for actions */
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.item form button:hover {
+  background-color: #dc2626; /* Darker red on hover */
+}
+
+/* Responsive Layout */
+@media (max-width: 768px) {
+  .tab form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tab form input,
+  .tab form textarea,
+  .tab form select {
+    width: 100%;
+  }
+}
+
+.btn-admin {
+  padding: 0.5rem 1rem;
+  margin-left: 1rem;
+  background-color: #0ff;
+  color: #0f172a;
+  border-radius: 5px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-admin:hover {
+  background-color: #0df;
+}
