@@ -11,9 +11,7 @@
     <a class="brand" href="/">⚙️ ByteCart</a>
     <% if (user && user.role === 'admin') { %>
       <nav>
-        <a href="/admin/products">Products</a>
-        <a href="/admin/categories">Categories</a>
-        <a href="/logout" class="neon-btn danger">Logout</a>
+        <a href="/auth/logout" class="neon-btn danger">Logout</a>
       </nav>
     <% } %>
   </div>

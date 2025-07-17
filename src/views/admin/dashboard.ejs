@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <%- include('../partials/header', { title }) %>
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
   <div class="admin-container">
@@ -35,9 +35,10 @@
       <% products.forEach(prod => { %>
         <div class="item">
           <span><strong><%= prod.title %></strong> – <%= prod.category?.name %></span>
-          <form action="/admin/products/delete/<%= prod._id %>" method="POST">
+          <form action="/admin/products/delete/<%= prod._id %>" method="POST" style="display:inline;">
             <button type="submit">Delete</button>
           </form>
+          <button onclick="openEditModal('<%= prod._id %>')" class="edit-btn neon-btn">Edit</button>
         </div>
       <% }) %>
     </div>
@@ -62,11 +63,50 @@
     </div>
   </div>
 
-  <!-- JS for Tab Switching -->
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeEditModal()">&times;</span>
+      <h2>Edit Product</h2>
+      <form id="editForm" method="POST">
+        <input type="text" name="title" placeholder="Title" required />
+        <textarea name="description" placeholder="Description"></textarea>
+        <input type="number" name="price" placeholder="Price" required />
+        <input type="number" name="stockQty" placeholder="Stock Quantity" required />
+        <select name="category" required>
+          <% categories.forEach(cat => { %>
+            <option value="<%= cat._id %>"><%= cat.name %></option>
+          <% }) %>
+        </select>
+        <input type="submit" value="Update Product" />
+      </form>
+    </div>
+  </div>
+
+  <!-- JS -->
   <script>
     function showTab(tab) {
       document.getElementById('products').style.display = tab === 'products' ? 'block' : 'none';
       document.getElementById('categories').style.display = tab === 'categories' ? 'block' : 'none';
+    }
+
+    function openEditModal(productId) {
+      fetch(`/admin/products/json/${productId}`)
+        .then(res => res.json())
+        .then(product => {
+          const form = document.getElementById('editForm');
+          form.action = `/admin/products/edit/${product._id}`;
+          form.title.value = product.title;
+          form.description.value = product.description;
+          form.price.value = product.price;
+          form.stockQty.value = product.stockQty;
+          form.category.value = product.category;
+          document.getElementById('editModal').style.display = 'block';
+        });
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
     }
   </script>
 </body>

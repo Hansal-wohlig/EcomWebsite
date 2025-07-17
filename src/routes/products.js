@@ -18,5 +18,10 @@ router.post(
 
 router.post('/update/:id', ensureAdmin, prod.update);
 router.post('/delete/:id', ensureAdmin, prod.remove);
+router.get('/products/json/:id', ensureAdmin, async (req, res) => {
+  const product = await Product.findById(req.params.id)
+  res.json(product)
+})
+
 
 module.exports = router;
