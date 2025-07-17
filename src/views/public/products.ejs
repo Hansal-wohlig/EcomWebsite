@@ -1,0 +1,58 @@
+<head>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<%- include('../partials/header') %>
+
+<!-- Video Background -->
+<video class="background-video" autoplay loop muted playsinline>
+  <source src="/videos/product-brochure.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<div class="brochure-content">
+  <form id="filterForm" method="GET" action="/products" autocomplete="off">
+    <select name="category" class="filter-input">
+      <option value="">All Categories</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat._id %>" <%= filters.category === cat._id ? 'selected' : '' %>><%= cat.name %></option>
+      <% }) %>
+    </select>
+
+    <input type="number" name="minPrice" placeholder="Min Price" value="<%= filters.minPrice || '' %>" class="filter-input" />
+    <input type="number" name="maxPrice" placeholder="Max Price" value="<%= filters.maxPrice || '' %>" class="filter-input" />
+    <button type="submit">Filter</button>
+    <button type="button" id="resetFilters" class="reset-btn">Reset</button>
+  </form>
+
+  <div class="product-grid">
+    <% products.forEach(prod => { %>
+      <a href="/products/<%= prod.slug %>" class="product-card-link">
+        <div class="product-card">
+          <div class="product-image">
+            <img src="/uploads/<%= prod.images[0] %>" alt="<%= prod.title %>" />
+          </div>
+          <h3><%= prod.title %></h3>
+          <p>₹<%= prod.price %></p>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+
+  <div class="pagination">
+    <% for(let i = 1; i <= totalPages; i++) { %>
+      <a href="?page=<%= i %>" class="<%= i == currentPage ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+  </div>
+</div>
+<%- include('../partials/footer') %>
+
+<script>
+  document.getElementById('resetFilters').addEventListener('click', function() {
+    const form = document.getElementById('filterForm');
+    form.category.value = '';
+    form.minPrice.value = '';
+    form.maxPrice.value = '';
+    form.submit();
+  });
+</script>
+

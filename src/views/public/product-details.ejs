@@ -1,0 +1,27 @@
+<head>
+    <link rel="stylesheet" href="/css/styles.css">
+  </head>
+<%- include('../partials/header') %>
+<h1><%= product.title %></h1>
+<div class="product-detail-image">
+    <img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" />
+  </div>
+  
+<p><%= product.description %></p>
+<p>₹<%= product.price %></p>
+
+<button onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+<%- include('../partials/footer') %>
+
+
+<script>
+function addToCart(productId) {
+  fetch('/cart/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId })
+  })
+  .then(res => res.json())
+  .then(data => alert('Added to cart!'));
+}
+</script>

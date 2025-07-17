@@ -11,6 +11,8 @@ const authRoutes = require('./routes/auth')
 const productRoutes  = require('./routes/products')
 const categoryRoutes = require('./routes/categories')
 const adminRoutes    = require('./routes/admin')
+const publicRoutes = require('./routes/public'); // adjust path
+
 
 const app = express()
 
@@ -20,6 +22,10 @@ connectDB()
 // ✅ Setup view engine
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
+
 
 // ✅ Static files
 app.use(express.static(path.join(__dirname, 'public')))
@@ -61,6 +67,8 @@ app.use('/admin', adminRoutes) // Keep this last in /admin group to avoid confli
 app.get('/', (req, res) => {
   res.render('landing', { title: 'Home' })
 })
+
+app.use('/', publicRoutes);
 
 // ✅ Start server
 const PORT = process.env.PORT || 4000
