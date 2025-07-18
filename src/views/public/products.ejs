@@ -25,14 +25,14 @@
   </form>
 
   <div class="product-grid">
-    <% products.forEach(prod => { %>
-      <a href="/products/<%= prod.slug %>" class="product-card-link">
+    <% products.forEach(product => { %>
+      <a href="/products/<%= product.slug %>" class="product-card-link">
         <div class="product-card">
           <div class="product-image">
-            <img src="/uploads/<%= prod.images[0] %>" alt="<%= prod.title %>" />
+            <img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" />
           </div>
-          <h3><%= prod.title %></h3>
-          <p>₹<%= prod.price %></p>
+          <h3><%= product.title %></h3>
+          <p>₹<%= product.price %></p>
         </div>
       </a>
     <% }) %>

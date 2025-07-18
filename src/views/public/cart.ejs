@@ -1,0 +1,129 @@
+<%- include("../partials/header") %>
+
+<script>
+  // Add cart-page class to body for specific styling
+  document.body.classList.add('cart-page');
+</script>
+
+<video class="video-bg" autoplay muted loop>
+  <source src="/videos/product-brochure.mp4" type="video/mp4">
+  Your browser does not support HTML5 video.
+</video>
+
+<div class="cart-container">
+  <h1>🛒 Your Cart</h1>
+
+  <% if (cart && cart.items.length > 0) { %>
+    <% cart.items.forEach(item => { %>
+      <div class="cart-item" data-product-id="<%= item.product._id %>">
+        <div class="cart-item-info">
+          <h3><%= item.product.title %></h3>
+          <p>₹<%= item.price.toLocaleString() %> × <%= item.quantity %></p>
+        </div>
+        <form method="POST" action="/api/cart/remove-one" style="display: inline; margin-right: 0.5rem;">
+          <input type="hidden" name="productId" value="<%= item.product._id %>">
+          <button type="button" onclick="removeOneItem('<%= item.product._id %>')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">➖ One</button>
+        </form>
+        <form method="POST" action="/api/cart?_method=DELETE" style="display: inline;">
+          <input type="hidden" name="productId" value="<%= item.product._id %>">
+          <button type="button" onclick="removeAllItems('<%= item.product._id %>')">🗑️ All</button>
+        </form>
+      </div>
+    <% }) %>
+
+    <div class="total">
+      <strong>Total: ₹<span id="cartTotal"><%= cart.totalPrice.toLocaleString() %></span></strong>
+    </div>
+    
+    <div style="text-align: center; margin-top: 2rem;">
+      <a href="/products" class="btn" style="margin-right: 1rem;">Continue Shopping</a>
+      <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669);">Proceed to Checkout</button>
+    </div>
+  <% } else { %>
+    <div class="empty-cart">
+      <p>Your cart is empty. Start shopping to add some amazing products!</p>
+      <a href="/products">Browse Products</a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  async function removeOneItem(productId) {
+    try {
+      const response = await fetch('/api/cart/remove-one', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update cart count in header
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+          cartCount.textContent = result.cartItemCount;
+        }
+        
+        // Update total
+        const cartTotal = document.getElementById('cartTotal');
+        if (cartTotal) {
+          cartTotal.textContent = result.totalPrice.toLocaleString();
+        }
+        
+        // Reload the page to show updated cart
+        location.reload();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert('Failed to remove item from cart');
+    }
+  }
+
+  async function removeAllItems(productId) {
+    if (!confirm('Are you sure you want to remove all items of this product?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/cart/remove-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ productId })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update cart count in header
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+          cartCount.textContent = result.cartItemCount;
+        }
+        
+        // Update total
+        const cartTotal = document.getElementById('cartTotal');
+        if (cartTotal) {
+          cartTotal.textContent = result.totalPrice.toLocaleString();
+        }
+        
+        // Reload the page to show updated cart
+        location.reload();
+      } else {
+        alert('Error: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error removing product:', error);
+      alert('Failed to remove product from cart');
+    }
+  }
+</script>
+
+<%- include("../partials/footer") %>
+

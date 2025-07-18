@@ -22,6 +22,7 @@ router.get('/products/json/:id', ensureAdmin, async (req, res) => {
   const product = await Product.findById(req.params.id)
   res.json(product)
 })
+router.get('/:slug', prod.productDetail);
 
 
 module.exports = router;

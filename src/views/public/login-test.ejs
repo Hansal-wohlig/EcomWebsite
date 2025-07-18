@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: #4285f4;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #3367d6;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .status.not-authenticated {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        .status.authenticated {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .debug-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authentication Test</h1>
+        
+        <div id="authStatus" class="status not-authenticated">
+            <strong>Status:</strong> <span id="statusText">Checking authentication...</span>
+        </div>
+        
+        <div id="userInfo" style="display: none;">
+            <h3>👤 User Information</h3>
+            <div id="userDetails"></div>
+        </div>
+        
+        <div id="loginSection">
+            <h3>🔑 Login Options</h3>
+            <a href="/auth/google" class="btn">Login with Google</a>
+            <button onclick="checkAuth()" class="btn">Check Auth Status</button>
+            <button onclick="testCart()" class="btn">Test Cart API</button>
+        </div>
+        
+        <div id="debugInfo" class="debug-info" style="display: none;">
+            <h4>Debug Information:</h4>
+            <pre id="debugData"></pre>
+        </div>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch('/debug-auth');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('authStatus');
+                const statusText = document.getElementById('statusText');
+                const userInfo = document.getElementById('userInfo');
+                const userDetails = document.getElementById('userDetails');
+                const debugInfo = document.getElementById('debugInfo');
+                const debugData = document.getElementById('debugData');
+                
+                if (data.isAuthenticated) {
+                    statusDiv.className = 'status authenticated';
+                    statusText.textContent = '✅ Authenticated';
+                    
+                    userInfo.style.display = 'block';
+                    userDetails.innerHTML = `
+                        <p><strong>Name:</strong> ${data.user.name}</p>
+                        <p><strong>Email:</strong> ${data.user.email}</p>
+                        <p><strong>Role:</strong> ${data.user.role || 'User'}</p>
+                    `;
+                } else {
+                    statusDiv.className = 'status not-authenticated';
+                    statusText.textContent = '❌ Not Authenticated';
+                    userInfo.style.display = 'none';
+                }
+                
+                // Show debug info
+                debugInfo.style.display = 'block';
+                debugData.textContent = JSON.stringify(data, null, 2);
+                
+            } catch (error) {
+                console.error('Error checking auth:', error);
+                document.getElementById('statusText').textContent = '❌ Error checking authentication';
+            }
+        }
+        
+        async function testCart() {
+            try {
+                const response = await fetch('/api/cart');
+                const data = await response.json();
+                
+                alert(`Cart API Response: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                alert(`Cart API Error: ${error.message}`);
+            }
+        }
+        
+        // Check auth on page load
+        checkAuth();
+    </script>
+</body>
+</html> 

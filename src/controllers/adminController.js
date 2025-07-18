@@ -39,7 +39,7 @@ exports.deleteCategory = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const { title, description, price, category, stockQty } = req.body;
-    const images = req.files.map(file => `/uploads/${file.filename}`);
+    const images = req.files.map(file => file.filename);
 
     await Product.create({
       title,

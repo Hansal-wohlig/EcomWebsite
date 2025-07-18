@@ -2,19 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title><%= title %> | ByteCart Admin</title>
+  <title><%= title %> | ByteCart</title>
   <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    .cart-icon {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff4444;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+  </style>
 </head>
 <body>
 <header class="navbar">
   <div class="container">
-    <a class="brand" href="/">⚙️ ByteCart</a>
-    <% if (user && user.role === 'admin') { %>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/products">Products</a>
+    <a class="brand" href="/">🛒 ByteCart</a>
+    <nav class="nav-links">
+      <a href="/products">Products</a>
+      <% if (user) { %>
+        <a href="/cart" class="cart-icon">
+          🛒 Cart
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+        <% if (user.role === 'admin') { %>
+          <a href="/admin/dashboard">Admin</a>
+        <% } %>
         <a href="/auth/logout" class="neon-btn danger">Logout</a>
-      </nav>
-    <% } %>
+      <% } else { %>
+        <a href="/auth/google" class="neon-btn">Login</a>
+      <% } %>
+    </nav>
   </div>
 </header>
+
+<script>
+  // Update cart count on page load
+  async function updateCartCount() {
+    try {
+      const response = await fetch('/api/cart');
+      if (response.ok) {
+        const cart = await response.json();
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount && cart && cart.items) {
+          cartCount.textContent = cart.items.length;
+        }
+      }
+    } catch (error) {
+      console.log('Could not fetch cart count');
+    }
+  }
+  
+  // Update cart count when page loads
+  if (document.getElementById('cartCount')) {
+    updateCartCount();
+  }
+</script>

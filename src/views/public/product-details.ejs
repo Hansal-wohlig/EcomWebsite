@@ -1,27 +1,206 @@
-<head>
-    <link rel="stylesheet" href="/css/styles.css">
-  </head>
 <%- include('../partials/header') %>
-<h1><%= product.title %></h1>
-<div class="product-detail-image">
-    <img src="/uploads/<%= product.images[0] %>" alt="<%= product.title %>" />
-  </div>
-  
-<p><%= product.description %></p>
-<p>₹<%= product.price %></p>
 
-<button onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+<!-- Toast Notification Styles -->
+<style>
+  .toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
+  .toast {
+    background: #4CAF50;
+    color: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .toast.show {
+    transform: translateX(0);
+  }
+  
+  .toast.error {
+    background: #f44336;
+  }
+  
+  .toast.success {
+    background: #4CAF50;
+  }
+  
+  .toast.info {
+    background: #2196F3;
+  }
+</style>
+
+<main class="product-detail-container">
+  <video autoplay muted loop id="bg-video">
+    <source src="/videos/product-brochure.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="product-detail-card">
+    <div class="product-images">
+      <% product.images.forEach(img => { %>
+        <img src="/uploads/<%= img %>" alt="<%= product.title %>" />
+      <% }) %>
+    </div>
+
+    <div class="product-info">
+      <h1><%= product.title %></h1>
+      <h2>₹<%= product.price %></h2>
+      <p><%= product.description %></p>
+      <p><strong>Stock:</strong> <%= product.stockQty %></p>
+      <p><strong>Category:</strong> <%= product.category.name %></p>
+
+      <% if (user) { %>
+        <form id="addToCartForm" action="/api/cart" method="POST" data-max-stock="<%= product.stockQty %>">
+          <input type="hidden" name="productId" value="<%= product._id %>" />
+          <label>Quantity:</label>
+          <input type="number" name="quantity" value="1" min="1" max="<%= product.stockQty %>" required />
+          <button type="submit" class="add-to-cart-btn" id="addToCartBtn">Add to Cart</button>
+        </form>
+      <% } else { %>
+        <p class="login-warning">🔒 Please <a href="/auth/google">login</a> to add this item to cart.</p>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
 <%- include('../partials/footer') %>
 
-
 <script>
-function addToCart(productId) {
-  fetch('/cart/add', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productId })
-  })
-  .then(res => res.json())
-  .then(data => alert('Added to cart!'));
-}
+  // Toast notification function
+  function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Add icon based on type
+    const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    toast.innerHTML = `
+      <span>${icon}</span>
+      <span>${message}</span>
+      <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">×</button>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove toast after 4 seconds (unless manually closed)
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (toast.parentElement) {
+            toastContainer.removeChild(toast);
+          }
+        }, 300);
+      }
+    }, 4000);
+  }
+
+  // Handle form submission with AJAX
+  document.getElementById('addToCartForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = document.getElementById('addToCartBtn');
+    const originalText = submitBtn.textContent;
+    const quantityInput = form.querySelector('input[name="quantity"]');
+    const quantity = parseInt(quantityInput.value);
+    
+    // Validate quantity
+    if (quantity < 1) {
+      showToast('❌ Please enter a valid quantity', 'error');
+      return;
+    }
+    
+    const maxStock = parseInt(form.dataset.maxStock);
+    if (quantity > maxStock) {
+      showToast(`❌ Only ${maxStock} items available in stock`, 'error');
+      return;
+    }
+    
+    // Disable button and show loading state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Adding...';
+    
+    try {
+      const formData = new FormData(form);
+      const data = {
+        productId: formData.get('productId'),
+        quantity: formData.get('quantity')
+      };
+      
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        showToast(result.message, 'success');
+        // Reset form
+        form.reset();
+        form.querySelector('input[name="quantity"]').value = '1';
+        
+        // Update cart count in header
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount && result.cartItemCount !== undefined) {
+          cartCount.textContent = result.cartItemCount;
+        }
+      } else if (response.status === 401) {
+        // Authentication required
+        showToast('🔒 Please login to add items to cart', 'error');
+        setTimeout(() => {
+          window.location.href = '/auth/google';
+        }, 2000);
+      } else {
+        showToast(result.message || 'Failed to add item to cart', 'error');
+      }
+    } catch (error) {
+      showToast('❌ Network error. Please try again.', 'error');
+    } finally {
+      // Re-enable button
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
+  
+  // Update cart count when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    const cartCount = document.getElementById('cartCount');
+    if (cartCount) {
+      // Fetch current cart count
+      fetch('/api/cart')
+        .then(response => response.json())
+        .then(cart => {
+          if (cart && cart.items) {
+            cartCount.textContent = cart.items.length;
+          }
+        })
+        .catch(error => {
+          console.log('Could not fetch cart count:', error);
+        });
+    }
+  });
 </script>
