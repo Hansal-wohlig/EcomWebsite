@@ -51,5 +51,6 @@ router.post(
     upload.none(), // or `upload.array('images', 4)` if you're uploading images
     productController.update
   );
+router.get('/orders', ensureAdmin, adminController.adminOrders);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 const Category = require('../models/Category');
 const Product = require('../models/Product');
+const Order = require('../models/Order');
+const User = require('../models/User');
 
 exports.dashboard = async (req, res) => {
   try {
@@ -61,6 +63,20 @@ exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.redirect('/admin');
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.adminOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate('user', 'email')
+      .populate('products.product', 'title');
+    res.render('admin/orders', {
+      title: 'All Orders',
+      orders
+    });
   } catch (err) {
     res.status(500).send('Server Error');
   }

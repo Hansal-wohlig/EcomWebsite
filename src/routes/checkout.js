@@ -67,6 +67,21 @@ router.get('/checkout/payment-success', isLoggedIn, async (req, res) => {
       }
     }
 
+    // Save order
+    const Order = require('../models/Order');
+    const orderProducts = cart.items.map(item => ({
+      product: item.product._id,
+      name: item.product.title,
+      price: item.price,
+      quantity: item.quantity
+    }));
+    const total = cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    await Order.create({
+      user: req.user._id,
+      products: orderProducts,
+      total
+    });
+
     // Clear cart
     cart.items = [];
     cart.totalPrice = 0;

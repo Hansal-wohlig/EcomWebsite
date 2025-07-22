@@ -8,10 +8,15 @@
   <div class="admin-container">
     <h1>Admin Dashboard</h1>
 
+    <div style="margin-bottom: 20px; display: none;">
+      <a href="/admin/orders" class="neon-btn" style="padding: 10px 20px; font-size: 16px; text-decoration: none;">View All Orders</a>
+    </div>
+
     <!-- Tabs -->
     <div class="tabs">
       <button onclick="showTab('products')">Products</button>
       <button onclick="showTab('categories')">Categories</button>
+      <a href="/admin/orders"><button type="button">Orders</button></a>
     </div>
 
     <!-- Products Tab -->
