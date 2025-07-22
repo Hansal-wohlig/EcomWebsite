@@ -1,0 +1,23 @@
+<%- include('../partials/header') %>
+
+<div class="payment-success-container" style="text-align:center; margin-top: 60px;">
+  <h1>🎉 Payment Successful!</h1>
+  <p>Thank you for your purchase. Your order has been placed and your cart is now empty.</p>
+  <% if (cart && cart.items && cart.items.length > 0) { %>
+    <h2>Purchased Items:</h2>
+    <ul style="list-style:none; padding:0;">
+      <% cart.items.forEach(item => { %>
+        <% if (item.product) { %>
+          <li>
+            <strong><%= item.product.title %></strong> &times; <%= item.quantity %> @ ₹<%= item.price.toLocaleString() %> each
+          </li>
+        <% } %>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>Your cart was empty or already cleared.</p>
+  <% } %>
+  <a href="/products" class="btn btn-primary" style="margin-top: 30px;">Continue Shopping</a>
+</div>
+
+<%- include('../partials/footer') %> 

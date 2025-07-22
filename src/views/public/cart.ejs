@@ -4,7 +4,6 @@
   // Add cart-page class to body for specific styling
   document.body.classList.add('cart-page');
 </script>
-
 <video class="video-bg" autoplay muted loop>
   <source src="/videos/product-brochure.mp4" type="video/mp4">
   Your browser does not support HTML5 video.
@@ -15,39 +14,84 @@
 
   <% if (cart && cart.items.length > 0) { %>
     <% cart.items.forEach(item => { %>
-      <div class="cart-item" data-product-id="<%= item.product._id %>">
-        <div class="cart-item-info">
-          <h3><%= item.product.title %></h3>
-          <p>₹<%= item.price.toLocaleString() %> × <%= item.quantity %></p>
+      <% if (item.product) { %>
+        <div class="cart-item" data-product-id="<%= item.product._id %>">
+          <div class="cart-item-info">
+            <h3><%= item.product.title %></h3>
+            <p>₹<%= item.price.toLocaleString() %> × <%= item.quantity %></p>
+          </div>
+          <form method="POST" action="/api/cart/remove-one" style="display: inline; margin-right: 0.5rem;">
+            <input type="hidden" name="productId" value="<%= item.product._id %>">
+            <button type="button" onclick="removeOneItem('<%= item.product._id %>')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">➖ One</button>
+          </form>
+          <form method="POST" action="/api/cart?_method=DELETE" style="display: inline;">
+            <input type="hidden" name="productId" value="<%= item.product._id %>">
+            <button type="button" onclick="removeAllItems('<%= item.product._id %>')">🗑️ All</button>
+          </form>
         </div>
-        <form method="POST" action="/api/cart/remove-one" style="display: inline; margin-right: 0.5rem;">
-          <input type="hidden" name="productId" value="<%= item.product._id %>">
-          <button type="button" onclick="removeOneItem('<%= item.product._id %>')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">➖ One</button>
-        </form>
-        <form method="POST" action="/api/cart?_method=DELETE" style="display: inline;">
-          <input type="hidden" name="productId" value="<%= item.product._id %>">
-          <button type="button" onclick="removeAllItems('<%= item.product._id %>')">🗑️ All</button>
-        </form>
-      </div>
+      <% } %>
     <% }) %>
 
     <div class="total">
       <strong>Total: ₹<span id="cartTotal"><%= cart.totalPrice.toLocaleString() %></span></strong>
     </div>
     
-    <div style="text-align: center; margin-top: 2rem;">
-      <a href="/products" class="btn" style="margin-right: 1rem;">Continue Shopping</a>
-      <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669);">Proceed to Checkout</button>
-    </div>
+
   <% } else { %>
     <div class="empty-cart">
       <p>Your cart is empty. Start shopping to add some amazing products!</p>
       <a href="/products">Browse Products</a>
     </div>
   <% } %>
+  <button id="checkout-btn" class="btn btn-primary">Proceed to Checkout</button>
 </div>
 
+<script src="https://js.stripe.com/v3/"></script>
 <script>
+  const STRIPE_PUBLISHABLE_KEY = "<%= STRIPE_PUBLISHABLE_KEY %>";
+  console.log("Stripe Key:", STRIPE_PUBLISHABLE_KEY); // Debug
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutBtn = document.getElementById('checkout-btn');
+  if (checkoutBtn) {
+    checkoutBtn.onclick = async function() {
+      console.log('Checkout button clicked');
+      const cartRes = await fetch('/api/cart');
+      const cart = await cartRes.json();
+      console.log('Cart:', cart);
+
+      if (!cart.items || cart.items.length === 0) {
+        alert('Your cart is empty or you are not logged in.');
+        return;
+      }
+
+      console.log('About to fetch Stripe session');
+      const response = await fetch('/checkout/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartItems: cart.items.map(item => ({
+          name: item.product.title,
+          price: item.price,
+          quantity: item.quantity
+        })) })
+      });
+      console.log('Stripe session response:', response);
+
+      const data = await response.json();
+      console.log('Stripe session id:', data.id);
+
+      if (!data.id) {
+        alert('Failed to create Stripe session');
+        return;
+      }
+
+      const stripe = Stripe(STRIPE_PUBLISHABLE_KEY); // Use env key
+      stripe.redirectToCheckout({ sessionId: data.id });
+    }
+  } else {
+    console.log('Checkout button not found');
+  }
+});
+
   async function removeOneItem(productId) {
     try {
       const response = await fetch('/api/cart/remove-one', {
@@ -126,4 +170,3 @@
 </script>
 
 <%- include("../partials/footer") %>
-

@@ -2,13 +2,20 @@ const Cart = require("../models/cartModel")
 const Product = require("../models/Product")
 
 exports.getCart = async (req, res) => {
-    const cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
-    res.render("public/cart", {
-      title: "Your Cart", // ✅ Add this line
-      cart,
-      user: req.user,
-    });
-  };
+  let cart = await Cart.findOne({ user: req.user._id }).populate("items.product");
+  if (cart) {
+    // Remove items with missing product
+    cart.items = cart.items.filter(item => item.product);
+    cart.calculateTotal();
+    await cart.save();
+  }
+  res.render("public/cart", {
+    title: "Your Cart",
+    cart,
+    user: req.user,
+    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY
+  });
+};
   
 
 

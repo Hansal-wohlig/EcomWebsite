@@ -13,6 +13,7 @@ const categoryRoutes = require('./routes/categories');
 const adminRoutes = require('./routes/admin');
 const publicRoutes = require('./routes/public');
 const cartRoutes = require('./routes/cart');
+const checkoutRoutes = require('./routes/checkout');
 
 const app = express(); // <-- Define app before using it
 
@@ -68,6 +69,7 @@ app.get('/', (req, res) => {
 
 app.use('/', publicRoutes);
 app.use('/', cartRoutes);
+app.use('/', checkoutRoutes);
 
 // ✅ Start server
 const PORT = process.env.PORT || 4000;
