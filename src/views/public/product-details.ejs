@@ -1,52 +1,14 @@
 <%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/styles.css">
 
-<!-- Toast Notification Styles -->
-<style>
-  .toast-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-  }
-  
-  .toast {
-    background: #4CAF50;
-    color: white;
-    padding: 16px 20px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transform: translateX(400px);
-    transition: transform 0.3s ease;
-    max-width: 300px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .toast.show {
-    transform: translateX(0);
-  }
-  
-  .toast.error {
-    background: #f44336;
-  }
-  
-  .toast.success {
-    background: #4CAF50;
-  }
-  
-  .toast.info {
-    background: #2196F3;
-  }
-</style>
 
 <main class="product-detail-container">
+  
   <video autoplay muted loop id="bg-video">
     <source src="/videos/product-brochure.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
+ 
 
   <div class="product-detail-card">
     <div class="product-images">
@@ -82,7 +44,7 @@
 <%- include('../partials/footer') %>
 
 <script>
-  // Toast notification function
+  // Enhanced Toast notification function
   function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -90,10 +52,17 @@
     
     // Add icon based on type
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    const title = type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Info';
+    
     toast.innerHTML = `
-      <span>${icon}</span>
-      <span>${message}</span>
-      <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">×</button>
+      <div class="toast-content">
+        <span class="toast-icon">${icon}</span>
+        <div class="toast-text">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      </div>
+      <button class="toast-close" onclick="closeToast(this.parentElement)" aria-label="Close notification">×</button>
     `;
     
     toastContainer.appendChild(toast);
@@ -101,17 +70,27 @@
     // Trigger animation
     setTimeout(() => toast.classList.add('show'), 100);
     
-    // Remove toast after 4 seconds (unless manually closed)
+    // Auto-remove toast after 5 seconds (unless manually closed)
+    const autoRemove = setTimeout(() => {
+      closeToast(toast);
+    }, 5000);
+    
+    // Store the timeout ID so we can clear it if user manually closes
+    toast.dataset.timeoutId = autoRemove;
+  }
+
+  // Close toast function
+  function closeToast(toast) {
+    if (toast.dataset.timeoutId) {
+      clearTimeout(parseInt(toast.dataset.timeoutId));
+    }
+    
+    toast.classList.remove('show');
     setTimeout(() => {
       if (toast.parentElement) {
-        toast.classList.remove('show');
-        setTimeout(() => {
-          if (toast.parentElement) {
-            toastContainer.removeChild(toast);
-          }
-        }, 300);
+        toast.parentElement.removeChild(toast);
       }
-    }, 4000);
+    }, 300);
   }
 
   // Handle form submission with AJAX
@@ -126,13 +105,13 @@
     
     // Validate quantity
     if (quantity < 1) {
-      showToast('❌ Please enter a valid quantity', 'error');
+      showToast('Please enter a valid quantity', 'error');
       return;
     }
     
     const maxStock = parseInt(form.dataset.maxStock);
     if (quantity > maxStock) {
-      showToast(`❌ Only ${maxStock} items available in stock`, 'error');
+      showToast(`Only ${maxStock} items available in stock`, 'error');
       return;
     }
     
@@ -158,7 +137,7 @@
       const result = await response.json();
       
       if (response.ok && result.success) {
-        showToast(result.message, 'success');
+        showToast(`Successfully added ${quantity} item${quantity > 1 ? 's' : ''} to cart!`, 'success');
         // Reset form
         form.reset();
         form.querySelector('input[name="quantity"]').value = '1';
@@ -167,10 +146,15 @@
         const cartCount = document.getElementById('cartCount');
         if (cartCount && result.cartItemCount !== undefined) {
           cartCount.textContent = result.cartItemCount;
+          // Add a subtle animation to the cart count
+          cartCount.style.transform = 'scale(1.2)';
+          setTimeout(() => {
+            cartCount.style.transform = 'scale(1)';
+          }, 200);
         }
       } else if (response.status === 401) {
         // Authentication required
-        showToast('🔒 Please login to add items to cart', 'error');
+        showToast('Please login to add items to cart', 'error');
         setTimeout(() => {
           window.location.href = '/auth/google';
         }, 2000);

@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const Product = require('../models/Product')
 const Category = require('../models/Category')
+const userController = require('../controllers/userController')
+const isLoggedIn = require('../middleware/isLoggedIn')
 
 // Debug route to check authentication
 router.get('/debug-auth', (req, res) => {
@@ -52,5 +54,8 @@ router.get('/products',async(req,res)=>{
         user: req.user||null
       })
 })
+
+// User Orders route
+router.get('/orders', isLoggedIn, userController.getUserOrders);
 
 module.exports=router

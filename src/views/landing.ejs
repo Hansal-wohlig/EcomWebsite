@@ -5,7 +5,7 @@
   <title><%= title %></title>
 
   <!-- Core stylesheet -->
-  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/landing.css" />
 
   <!-- Tech font -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
@@ -20,9 +20,12 @@
         <a href="/">Home</a>
         <a href="/products">Products</a>
         <a href="/cart">Cart</a>
-  
-        <% if (user && user.role === 'admin') { %>
-          <a href="/admin/dashboard" class="btn-admin">Admin Dashboard</a>
+        
+        <% if (user) { %>
+          <a href="/orders">My Orders</a>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin/dashboard" class="btn-admin">Admin Dashboard</a>
+          <% } %>
         <% } %>
   
         <% if (!user) { %>

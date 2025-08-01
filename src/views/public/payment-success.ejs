@@ -1,23 +1,32 @@
 <%- include('../partials/header') %>
+<link rel="stylesheet" href="/css/payment-success.css">
 
-<div class="payment-success-container" style="text-align:center; margin-top: 60px;">
-  <h1>🎉 Payment Successful!</h1>
-  <p>Thank you for your purchase. Your order has been placed and your cart is now empty.</p>
-  <% if (cart && cart.items && cart.items.length > 0) { %>
-    <h2>Purchased Items:</h2>
-    <ul style="list-style:none; padding:0;">
-      <% cart.items.forEach(item => { %>
-        <% if (item.product) { %>
-          <li>
-            <strong><%= item.product.title %></strong> &times; <%= item.quantity %> @ ₹<%= item.price.toLocaleString() %> each
-          </li>
-        <% } %>
-      <% }) %>
-    </ul>
-  <% } else { %>
-    <p>Your cart was empty or already cleared.</p>
-  <% } %>
-  <a href="/products" class="btn btn-primary" style="margin-top: 30px;">Continue Shopping</a>
+<div class="payment-success-container">
+  <div class="payment-success-content">
+    <div class="payment-success-icon">🎉</div>
+    <h1 class="payment-success-title">Payment Successful!</h1>
+    <p class="payment-success-message">Thank you for your purchase. Your order has been placed and your cart is now empty.</p>
+    
+    <% if (cart && cart.items && cart.items.length > 0) { %>
+      <div class="purchased-items-section">
+        <h2 class="purchased-items-title">Purchased Items:</h2>
+        <ul class="purchased-items-list">
+          <% cart.items.forEach(item => { %>
+            <% if (item.product) { %>
+              <li class="purchased-item">
+                <div class="purchased-item-name"><%= item.product.title %></div>
+                <div class="purchased-item-details">Quantity: <%= item.quantity %> × ₹<%= item.price.toLocaleString() %> each</div>
+              </li>
+            <% } %>
+          <% }) %>
+        </ul>
+      </div>
+    <% } else { %>
+      <p class="empty-cart-message">Your cart was empty or already cleared.</p>
+    <% } %>
+    
+    <a href="/products" class="continue-shopping-btn">Continue Shopping</a>
+  </div>
 </div>
 
 <%- include('../partials/footer') %> 
