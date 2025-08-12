@@ -1,24 +1,17 @@
-# Base image
-FROM node:20-alpine
-
-# Set working directory
+# 1️⃣ Base image
+FROM node:20-alpine AS base
 WORKDIR /app
-
-# Copy package files first for caching
 COPY package*.json ./
+COPY package-lock.json ./
 
-# Install dependencies
-RUN npm install --production
+# 2️⃣ Install dependencies
+RUN npm install
 
-# Copy rest of the app
+# 3️⃣ Copy all files
 COPY . .
 
-# Copy env file (only if using build-time env)
-# For CI/CD we inject at runtime via docker run or Kubernetes secrets
-COPY .env .env
+# 4️⃣ Expose port
+EXPOSE 3000
 
-# Expose port
-EXPOSE 4000
-
-# Start the app
-CMD ["npm", "start"]
+# 5️⃣ Start development server
+CMD ["npm", "run", "dev"]
