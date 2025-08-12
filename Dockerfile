@@ -1,23 +1,24 @@
-# Use official Node.js LTS image (20.x)
+# Base image
 FROM node:20-alpine
-
-# Install bash and other useful tools (optional, for shell scripts)
-RUN apk add --no-cache bash
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+# Copy package files first for caching
+COPY package*.json ./
 
-# Copy application code
-COPY src ./src
-COPY public ./public
-COPY .env ./
+# Install dependencies
+RUN npm install --production
 
-# Expose the port (default 4000)
+# Copy rest of the app
+COPY . .
+
+# Copy env file (only if using build-time env)
+# For CI/CD we inject at runtime via docker run or Kubernetes secrets
+COPY .env .env
+
+# Expose port
 EXPOSE 4000
 
-# Start the application
+# Start the app
 CMD ["npm", "start"]

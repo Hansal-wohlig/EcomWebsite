@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Deploy E-commerce App
 
 on:
   push:
@@ -6,24 +6,41 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          node-version: 20
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ecommerce:latest
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Create .env file
+        run: |
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+          echo "SESSION_SECRET=${{ secrets.SESSION_SECRET }}" >> .env
+          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+          echo "STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}" >> .env
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> .env
+
+      - name: Build Docker image
+        run: docker build -t ecom-app .
+
+      - name: Push to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+          docker tag ecom-app ${{ secrets.DOCKER_HUB_USERNAME }}/ecom-app:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ecom-app:latest
