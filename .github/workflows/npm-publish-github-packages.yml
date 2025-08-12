@@ -1,79 +1,27 @@
-# .github/workflows/ci.yml
+name: Build and Push to Docker Hub
 
-name: Node.js CI/CD
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
-  # This job runs the build and test steps
-  build_and_test:
+  build-and-push:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        # As specified in your Dockerfile and package.json
-        node-version: [20.x]
-
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Sets up Node.js
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm ci
-
-      # The "test" script is not defined in your package.json.
-      # Please add a "test" script to your package.json file.
-      # For example: "scripts": { "test": "jest" }
-      - name: Run Tests
-        run: npm test --if-present
-
-      - name: Build Docker image
-        run: |
-          docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-
-  # This job publishes the package to GitHub Packages
-  publish:
-    # This job will only run when a new release is created
-    if: github.event_name == 'release' && github.event.action == 'created'
-    needs: build_and_test # Ensures that publishing only happens after build and test are successful
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
-          node-version: 20
-          registry-url: 'https://npm.pkg.github.com/'
-          # Defaults to the user or organization that owns the workflow file
-          scope: '@${{ github.repository_owner }}'
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Publish to GitHub Package Registry
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ecomwebsite:latest
