@@ -1,0 +1,57 @@
+# This Cloud Build configuration automates the entire CI/CD pipeline for the e-commerce application.
+# On every push to the 'main' branch, it will:
+# 1. Log in to GitHub Container Registry using a secure token.
+# 2. Build the Docker image from the Dockerfile.
+# 3. Push the new image to GitHub Packages.
+# 4. Deploy the updated image to your Cloud Run service, making it live.
+
+steps:
+  # Step 1: Log in to GitHub Container Registry (ghcr.io)
+  # This step uses a Personal Access Token (PAT) stored securely in Google Secret Manager
+  # to authenticate with GitHub Packages. This is the recommended, secure way to handle credentials.
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Login to ghcr.io'
+    entrypoint: 'bash'
+    args: ['-c', 'docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin']
+    secretEnv: ['DOCKER_PASSWORD']
+
+  # Step 2: Build the Docker image
+  # This builds the image using the Dockerfile in your repository and tags it for ghcr.io.
+  # The $COMMIT_SHA variable ensures each build has a unique, traceable version.
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build'
+    args:
+      - 'build'
+      - '-t'
+      - 'ghcr.io/hansal-wohlig/ecomwebsite:$COMMIT_SHA'
+      - '.'
+
+  # Step 3: Push the Docker image to GitHub Container Registry
+  # This pushes the newly built and tagged image to your GitHub Packages.
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push'
+    args:
+      - 'push'
+      - 'ghcr.io/hansal-wohlig/ecomwebsite:$COMMIT_SHA'
+
+  # Step 4: Deploy the new image to your Cloud Run service
+  # This final step takes the image from ghcr.io and deploys it to Cloud Run.
+  # The --allow-unauthenticated flag makes your service publicly accessible.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ecomwebsite' # <-- Important: Change this if your Cloud Run service has a different name
+      - '--image=ghcr.io/hansal-wohlig/ecomwebsite:$COMMIT_SHA'
+      - '--region=us-central1' # <-- Change this to your Cloud Run region if different
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+# This section makes your GitHub PAT (stored as 'DOCKER_PASSWORD')
+# available to the login step from Secret Manager.
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/github-pat/versions/latest
+      env: 'DOCKER_PASSWORD'
